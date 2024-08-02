@@ -19,8 +19,10 @@ const tags = ref(['闲谈','技术','更新'])
 const currentTag = ref('');
 const allPosts = inject('allPosts')
 const curPosts = ref([])
+
+
 watch(() => currentTag.value, (val) => {
-    curPosts.value = allPosts.value.filter(post => post.tag == val)
+    curPosts.value = allPosts.value.filter(post => post.tag === val)
 })
 </script>
 

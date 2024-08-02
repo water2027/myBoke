@@ -97,11 +97,20 @@ const username = ref('访客')
 const isLogin = ref(false);
 const isMobileView = window.innerWidth < 768;
 const isNavOpen = ref(false);
+provide('posts', posts)
+provide('allPosts', allPosts)
 
+/**
+ * @description 切换导航栏的显示状态
+ */
 const toggleNav = () => {
     isNavOpen.value = !isNavOpen.value
 };
 
+
+/**
+ * @description 播放音频
+ */
 const audioPlay = () => {
     let audio = document.querySelector('audio');
     if (audio.paused) {
@@ -111,79 +120,55 @@ const audioPlay = () => {
     }
 };
 
-provide('posts', posts)
-provide('allPosts', allPosts)
 
+/**
+ * @description 进入编辑页面
+ */
 const enterEditView = () => {
-    // if (document.cookie.indexOf('userInfo') == -1) {
-    //     alert('请先登录')
-    //     return
-    // }
     router.push('/edit')
 };
 
+
+/**
+ * @description 获取所有文章
+ */
 const fetchAllPosts = async () => {
-    //fetch function
-    //流式传输，传过来的是五个一组，全都加进allPosts里
-    // 发起fetch请求
     const response = await fetch("/api/getPosts");
     const data = await response.json();
     allPosts.value = Object.freeze(data.data.reverse());
     len.value = data.data.length;
     getPosts();
-    // const reader = response.body.getReader();
-    // const decoder = new TextDecoder();
-    // alert("fetch")
-    // console.log(response)
-
-    // // 读取数据
-    // reader.read().then(function processStream({ done, value }) {
-    //     if (done) {
-    //         console.log("Stream complete");
-    //         return;
-    //     }
-
-    //     // 将Uint8Array转换为字符串
-    //     const str = decoder.decode(value, { stream: true });
-    //     console.log(str)
-    //     try {
-    //         // 假设服务器发送的是JSON数组
-    //         const array = JSON.parse(str);
-
-    //         allPosts.value = allPosts.value.concat(array);
-    //     } catch (e) {
-    //         console.error("Failed to parse JSON", e);
-    //     }
-
-    //     // 继续读取下一段数据
-    //     reader.read().then(processStream);
-    // });
 
 }
 
-// let firstGetPosts = () => {
-//     posts.value = allPosts.value.slice(start.value, (start.value + 5) < len.value ? (start.value + 5) : len.value);
-// }
-
+/**
+ * @description 获取部分文章，对allPosts进行切片
+ * 
+ */
 const getPosts = () => {
     //一次只加载部分文章，默认为5
     posts.value = allPosts.value.slice(start.value, (start.value + 5) < len.value ? (start.value + 5) : len.value);
 };
 
+/**
+ * @description 获取更多文章
+ * @param {number} direction 0表示向前，1表示向后
+ */
 const getMorePosts = (direction) => {
-    //API接口应该传入两个个数字参数，第一个是文章的起始位置，第二个是文章的数量
-    //使用GET方法请求文章数据
-    //然后更新posts.value
-    // start.value += 5;
     if (direction === 0) {
         start.value -= 5;
         start.value = start.value < 0 ? 0 : start.value;
     } else {
         start.value += 5;
+        start.value = start.value > len.value ? len.value : start.value;
     }
     getPosts();
 };
 
+
+/**
+ * @description 获取访客信息并发送到后端
+ */
 const getUserInfo = () => {
     let sendUserInfo = (userInfo) => {
         const data = {
@@ -213,9 +198,13 @@ const getUserInfo = () => {
         })
 };
 
+/**
+ * @description 判断是否在首页
+ */
 const isNavShow = computed(() => {
     return route.path == '/'
 });
+
 
 onMounted(() => {
     fetchAllPosts();
@@ -242,6 +231,12 @@ onMounted(() => {
 
 });
 
+
+/**
+ * 
+ * @param e 鼠标事件
+ * @description 创建一个心形，用于点击时的动画
+ */
 const createHeart = (e) => {
     let x = e.clientX;
     let y = e.clientY;
@@ -262,6 +257,9 @@ const createHeart = (e) => {
     }, 1000);
 };
 
+/**
+ * @description 订阅或取消订阅
+ */
 const follow = () => {
     fetch('/api/follow', {
         method: 'GET',

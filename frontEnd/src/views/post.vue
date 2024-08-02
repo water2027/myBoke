@@ -5,7 +5,7 @@
         <div class="articleTime">{{ post.created_at }}</div>
     </div>
     <div>
-        <textarea v-model="reply" placeholder="想说点什么吗"></textarea>
+        <textarea ref="replyInput" placeholder="想说点什么吗"></textarea>
         <button @click="submitReply">提交</button>
     </div>
     <div>
@@ -19,7 +19,7 @@
 </template>
 <script setup>
 import { ref, inject, onMounted } from 'vue'
-const reply = ref('')
+const replyInput = ref(null)
 const posts = inject('posts')
 const props = defineProps({
     id:{
@@ -27,11 +27,17 @@ const props = defineProps({
         required: true
     }
 })
+
 onMounted(() => {
     getReplys();
 })
+
 const post = ref(posts.value.filter(post => post.id == props.id)[0])
 const replys = ref([])
+
+/**
+ * @description 获取回复
+ */
 const getReplys = () => {
     fetch('/api/getReply?title=' + encodeURIComponent(post.value.title), {
         method: 'GET'
@@ -42,8 +48,13 @@ const getReplys = () => {
             replys.value.reverse();
         });
 }
+
+/**
+ * @description 提交回复
+ */
 const submitReply = () => {
-    if(reply.value === ''){
+    const reply = replyInput.value.value;
+    if(reply === ''){
         alert('请输入内容');
         return;
     }
@@ -51,7 +62,7 @@ const submitReply = () => {
         alert('请先登录');
         return;
     }
-    const formData = `title=${post.value.title}&reply=${reply.value}`;
+    const formData = `title=${post.value.title}&reply=${reply}`;
     fetch('/api/addReply', {
         method: 'POST',
         headers: {
@@ -68,6 +79,11 @@ const submitReply = () => {
             console.log('失败了?' + error);
         });
 }
+
+/**
+ * @description 删除回复
+ * @param {String} id 回复的id，不是文章的id
+ */
 const del = (id) => {
     fetch('/api/delReply?id='+id, {
         method: 'GET',
@@ -93,7 +109,5 @@ const del = (id) => {
 .articleTime{
     text-align: right;
 }
-
-
 
 </style>

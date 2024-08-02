@@ -14,7 +14,6 @@ import { RouterLink } from 'vue-router'
 import { inject } from 'vue'
 const posts = inject('posts')
 
-
 </script>
 <style scoped>
 p{

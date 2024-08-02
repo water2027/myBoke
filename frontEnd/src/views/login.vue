@@ -3,35 +3,35 @@
         <span class="title">{{ isLogin ? 'Login' : 'Register' }}</span>
         <div v-if="isLogin" class="loginAndRegPage">
             <div class="inputData">
-                <input v-model="email" type="email" id="loginEmail" required>
+                <input ref="email" type="email" id="loginEmail" required>
                 <div class="underline"></div>
                 <label for="loginEmail">邮箱</label>
             </div>
             <div class="inputData">
-                <input v-model="password" type="password" id="loginpwd" required>
+                <input ref="password" type="password" id="loginpwd" required>
                 <div class="underline"></div>
                 <label for="loginpwd">密码</label>
             </div>
-            <input type="checkbox" v-model="remembered" class="checkbox">记住我
+            <input type="checkbox" ref="remembered" class="checkbox">记住我
         </div>
         <div v-else class="loginAndRegPage">
             <div class="inputData">
-                <input v-model="email" type="email" id="regEmail" required>
+                <input ref="email" type="email" id="regEmail" required>
                 <div class="underline"></div>
                 <label for="regEmail">邮箱</label>
             </div>
             <div class="inputData">
-                <input v-model="username" type="text" id="username" required>
+                <input ref="username" type="text" id="username" required>
                 <div class="underline"></div>
                 <label for="username">用户名</label>
             </div>
             <div class="inputData">
-                <input v-model="password" type="password" id="regpwd" required>
+                <input ref="password" type="password" id="regpwd" required>
                 <div class="underline"></div>
                 <label for="regpwd">密码</label>
             </div>
             <div class="inputData">
-                <input v-model="code" type="text" required>
+                <input ref="code" type="text" required>
                 <div class="underline"></div>
                 <label>验证码</label>
             </div>
@@ -51,12 +51,12 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-const email = ref('')
-const username = ref('')
-const password = ref('')
+const email = ref(null)
+const username = ref(null)
+const password = ref(null)
 const router = useRouter()
 const isLogin = ref(true)
-const code = ref('')
+const code = ref(null)
 const remembered = ref(false)
 onMounted(() => {
     if (document.cookie.indexOf('userInfo') != -1) {
@@ -64,28 +64,37 @@ onMounted(() => {
     }
 })
 
+/**
+ * @description 判断登录是否符合要求
+ */
 const loginIsOk = computed(() => {
-    return email.value && password.value
+    return email.value.value && password.value.value
 })
 
+/**
+ * @description 判断注册是否符合要求
+ */
 const regIsOk = computed(() => {
-    return email.value && username.value && password.value
+    return email.value.value && username.value.value && password.value.value
 })
 
+/**
+ * @description 登录
+ */
 const login = () => {
     if (isLogin.value) {
         if (!loginIsOk.value) {
-            if (!email.value) {
+            if (!email.value.value) {
                 alert('email is required')
             }
-            else if (!password.value) {
+            else if (!password.value.value) {
                 alert('password is required')
             }
             return
         }
 
         //fetch function
-        let formData = `email=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`;
+        let formData = `email=${encodeURIComponent(email.value.value)}&password=${encodeURIComponent(password.value.value)}`;
         fetch('/api/login', {
             method: 'POST',
             headers: {
@@ -111,6 +120,9 @@ const login = () => {
     }
 }
 
+/**
+ * @description 注册
+ */
 const register = () => {
     if (isLogin.value) {
         isLogin.value = false
@@ -118,7 +130,7 @@ const register = () => {
     else if (regIsOk.value) {
         //register success
         //fetch function
-        let formData = `code=${encodeURIComponent(code.value)}`;
+        let formData = `code=${encodeURIComponent(code.value.value)}`;
         fetch("/api/register", {
             method: 'POST',
             headers: {
@@ -152,12 +164,15 @@ const register = () => {
     }
 }
 
+/**
+ * @description 发送验证码
+ */
 const sendCode = () => {
-    if ((!email.value) || (!username.value) || (!password.value)) {
+    if ((!email.value.value) || (!username.value.value) || (!password.value.value)) {
         alert('email, username, password is required')
         return
     }
-    let formData = `email=${encodeURIComponent(email.value)}&username=${encodeURIComponent(username.value)}&password=${encodeURIComponent(password.value)}`;
+    let formData = `email=${encodeURIComponent(email.value.value)}&username=${encodeURIComponent(username.value.value)}&password=${encodeURIComponent(password.value.value)}`;
     fetch("/api/sendCode", {
         method: 'POST',
         headers: {

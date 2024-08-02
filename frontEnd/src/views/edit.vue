@@ -22,16 +22,16 @@
         </nav>
         <div class="edit-container">
             <div class="edit-title">
-                <input type="text" placeholder="请输入标题" v-model="title">
+                <input type="text" placeholder="请输入标题" ref="titleInput">
             </div>
             <div class="edit-tag">
-                <input type="text" placeholder="请输入标签" v-model="tag">
+                <input type="text" placeholder="请输入标签" ref="tagInput">
             </div>
             <div class="edit-jmjx">
-                <textarea placeholder="请输入简介" v-model="jmjx"></textarea>
+                <textarea placeholder="请输入简介" ref="jmjxInput"></textarea>
             </div>
             <div class="edit-content">
-                <textarea v-model="body" placeholder="请输入内容"></textarea>
+                <textarea v-model="body" placeholder="请输入内容" ref="bodyInput"></textarea>
             </div>
             <div class="buttons">
                 <div class="edit-submit">
@@ -47,10 +47,10 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { inject, onMounted, ref } from 'vue';
-const title = ref('');
-const tag = ref('');
-const jmjx = ref('');
-const body = ref('');
+const titleInput = ref(null)
+const tagInput = ref(null)
+const jmjxInput = ref(null)
+const bodyInput = ref(null)
 const jiuu = ref([])
 const xmtj = ref([])
 const ggxn = ref([])
@@ -72,11 +72,20 @@ onMounted(() => {
         router.push('/login')
     }
 })
+
+/**
+ * @description 提交文章
+ */
 const submit = () => {
     //fetch function
     // 发起fetch请求
     // 提交数据
-    let formData = `title=${encodeURIComponent(title.value)}&jmjx=${encodeURIComponent(jmjx.value)}&body=${encodeURIComponent(body.value)}&tag=${encodeURIComponent(tag.value)}`;
+    const title = titleInput.value.value
+    const tag = tagInput.value.value
+    const jmjx = jmjxInput.value.value
+    const body = bodyInput.value.value
+    console.log(title, tag, jmjx, body)
+    let formData = `title=${encodeURIComponent(title)}&jmjx=${encodeURIComponent(jmjx.value)}&body=${encodeURIComponent(body.value)}&tag=${encodeURIComponent(tag.value)}`;
     fetch("/api/writePost", {
         method: 'POST',
         headers: {
@@ -92,6 +101,10 @@ const submit = () => {
         }
     })
 }
+
+/**
+ * @description 修改文章
+ */
 const change = () => {
     let formData = `title=${encodeURIComponent(title.value)}&jmjx=${encodeURIComponent(jmjx.value)}&body=${encodeURIComponent(body.value)}&tag=${encodeURIComponent(tag.value)}`;
     fetch("/api/editPost", {
@@ -108,6 +121,11 @@ const change = () => {
         }
     })    
 }
+
+/**
+ * @description 获取文章
+ * @param {String} id 文章id
+ */
 const get = (id) => {
     var aimPost = allPosts.find(post => post.id === id)
     title.value = aimPost.title
@@ -116,6 +134,11 @@ const get = (id) => {
     body.value = aimPost.body
 }
 const isChecked = ref(-1);
+
+/**
+ * @description 切换选中
+ * @param {Number} index 选中的索引
+ */
 const toggleCheck = (index) => {
     if (isChecked.value === index) {
         isChecked.value = -1;
