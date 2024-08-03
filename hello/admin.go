@@ -1,15 +1,25 @@
 package main
 
 import (
-	"log"
 	"github.com/gin-gonic/gin"
+	"log"
 )
+
+type userInfo struct {
+	Id           int
+	Time         string
+	Week         string
+	Ip           string
+	Location     string
+	Browser      string
+	DeviceSystem string
+}
 
 func isAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
 		token = md5V(token)
-		if token != "token" {
+		if token != adminToken {
 			c.JSON(403, gin.H{
 				"message": "you are not admin",
 			})
@@ -74,15 +84,25 @@ func editPost(c *gin.Context) {
 
 func seeUserInfos(c *gin.Context) {
 	//验证身份
-	rows, err := db.Query("SELECT * FROM userinfo")
+	rows, err := db.Query("SELECT * FROM user_info")
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "get user info failed",
 		})
+		return
 	}
 	defer rows.Close()
+	var userInfos []userInfo
+	for rows.Next() {
+		var userInfo userInfo
+		err := rows.Scan(&userInfo.Id, &userInfo.Time, &userInfo.Week, &userInfo.Ip, &userInfo.Location, &userInfo.Browser, &userInfo.DeviceSystem)
+		if err != nil {
+			log.Println(err)
+		}
+		userInfos = append(userInfos, userInfo)
+	}
 	c.JSON(200, gin.H{
 		"message": "get user info success",
-		"data":    rows,
+		"data":    userInfos,
 	})
 }

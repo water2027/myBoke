@@ -2,14 +2,18 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/sessions"
 	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 )
 
 var Store = sessions.NewCookieStore([]byte("a secret"))
+var adminToken string
 
 var db *sql.DB
 
@@ -18,14 +22,19 @@ func homePage(c *gin.Context) {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
+	adminToken = os.Getenv("ADMIN_TOKEN")
+
 	r := gin.Default()
 	r.LoadHTMLGlob("dist/*.html") 
 	r.Static("/asset", "dist/asset") 
-	var err error
-	user := "username"
-	pass := "password"
-	host := "localhost"
-	dbName := "dbName"
+	user := os.Getenv("DB_USER")
+	pass := os.Getenv("DB_PASS")
+	host := os.Getenv("DB_HOST")
+	dbName := os.Getenv("DB_NAME")
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4", user, pass, host, dbName)
 	db, err = sql.Open("mysql", dsn)
 	if db == nil {

@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gorilla/sessions v1.3.0
+	github.com/joho/godotenv v1.5.1
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	nhooyr.io/websocket v1.8.11
 )
