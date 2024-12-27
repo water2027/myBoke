@@ -38,7 +38,14 @@ func writePost(c *gin.Context) {
 	if tag == "" {
 		tag = "默认"
 	}
-	_, err := db.Exec("INSERT INTO posts (title, jmjx, body, tag) VALUES (?, ?, ?, ?)", title, jmjx, body, tag)
+	stmt, err := db.Prepare("INSERT INTO posts (title, jmjx, body, tag) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "Prepare failed",
+		})
+	}
+	_, err = stmt.Exec(title, jmjx, body, tag)
+	defer stmt.Close()
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "write post failed",
@@ -71,7 +78,14 @@ func editPost(c *gin.Context) {
 	if tag == "" {
 		tag = "默认"
 	}
-	_, err := db.Exec("UPDATE posts SET title = ?, jmjx = ?, body = ?, tag = ? WHERE id = ?", title, jmjx, body, tag, id)
+	stmt, err := db.Prepare("UPDATE posts SET title = ?, jmjx = ?, body = ?, tag = ? WHERE id = ?")
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "Prepare failed",
+		})
+	}
+	_, err = stmt.Exec(title, jmjx, body, tag, id)
+	defer stmt.Close()
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "edit post failed",

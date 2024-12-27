@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div v-for="friend in myFriends" class="postLink">
-            <a :href="friend.link">
+        <div v-for="friend in myFriends" class="postLink" :key="friend.id">
+            <a :href="friend.link" target="_blank">
                 <h3>{{ friend.name }}</h3>
                 <p>{{ friend.desc }}</p>
             </a>

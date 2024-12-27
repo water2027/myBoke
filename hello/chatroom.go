@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wsjson"
 	"strings"
 	"sync"
 	"time"
-	"github.com/gin-gonic/gin"
-	"nhooyr.io/websocket"
-	"nhooyr.io/websocket/wsjson"
 )
 
 var (
@@ -45,11 +45,11 @@ func websocketChat(c *gin.Context) {
 		}
 		return
 	}
-    session,err := Store.Get(c.Request, "userInfo")
-    if err != nil {
-        log.Printf("Error getting session: %v", err)
-        c.JSON(http.StatusProxyAuthRequired, gin.H{"error": "please login first"})
-    }
+	session, err := Store.Get(c.Request, "userInfo")
+	if err != nil {
+		log.Printf("Error getting session: %v", err)
+		c.JSON(http.StatusProxyAuthRequired, gin.H{"error": "please login first"})
+	}
 
 	username := session.Values["username"]
 
@@ -58,9 +58,9 @@ func websocketChat(c *gin.Context) {
 	mu.Unlock()
 
 	firstMsg := map[string]interface{}{
-		"username": "system",
-		"message":  "欢迎来到聊天室",
-		"time":     time.Now().Format("2006-1-2 15:04"),
+		"username":  "system",
+		"message":   "欢迎来到聊天室",
+		"time":      time.Now().Format("2006-1-2 15:04"),
 		"formerMsg": Messages,
 	}
 
@@ -91,8 +91,8 @@ func websocketChat(c *gin.Context) {
 			continue
 		}
 
-        now := time.Now()
-        bjTime := now.In(time.FixedZone("CST", 8*3600))
+		now := time.Now()
+		bjTime := now.In(time.FixedZone("CST", 8*3600))
 
 		newMsg := map[string]interface{}{
 			"username": username,

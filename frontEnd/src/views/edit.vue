@@ -85,7 +85,8 @@ const submit = () => {
     const jmjx = jmjxInput.value.value
     const body = bodyInput.value.value
     console.log(title, tag, jmjx, body)
-    let formData = `title=${encodeURIComponent(title)}&jmjx=${encodeURIComponent(jmjx.value)}&body=${encodeURIComponent(body.value)}&tag=${encodeURIComponent(tag.value)}`;
+    let formData = `title=${encodeURIComponent(title)}&jmjx=${encodeURIComponent(jmjx)}&body=${encodeURIComponent(body)}&tag=${encodeURIComponent(tag)}`;
+    console.log(formData)
     fetch("/api/writePost", {
         method: 'POST',
         headers: {
